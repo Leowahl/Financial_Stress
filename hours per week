@@ -1,0 +1,39 @@
+library(ggplot2)
+hours <- survey_full[-1,c(2,19,47,48,49)]
+## Remove specific rows with unusable responses
+hours <- hours[-52,]
+## Change ranges to averages
+for (i in 2:5){
+hours[,i] <- gsub("10-15", 12.5, hours[,i])
+hours[,i] <- gsub("10-20", 15, hours[,i])
+hours[,i] <- gsub("14-20", 17, hours[,i])
+hours[,i] <- gsub("10-15", 12.5, hours[,i])
+hours[,i] <- gsub("2-20", 11, hours[,i])
+hours[,i] <- gsub("5-10", 7.5, hours[,i])
+hours[,i] <- gsub("1-2", 1.5, hours[,i])
+hours[,i] <- gsub("6-8", 7, hours[,i])
+hours[,i] <- gsub("2-4", 3, hours[,i])
+hours[,i] <- gsub("2-3", 2.5, hours[,i])
+hours[,i] <- gsub("0-10", 5, hours[,i])
+hours[,i] <- gsub("10-60", 35, hours[,i])
+hours[,i] <- gsub("20-25", 22.5, hours[,i])
+## Remove all non-numeric values
+hours[,i] <- gsub("[^-.0-9]",'', hours[,i])
+hours[,i] <- as.numeric(hours[,i])
+}
+hours <- hours %>% replace(is.na(.), 0)
+total_hours <- rowSums(hours[,2:5])
+total <- data.frame(hours[,1], total_hours)
+total[,1] <- as.factor(total[,1])
+
+## Count numbers in each category
+ggplot(total)
+less <- length(which(total_hours<=48))
+more <- length(which(total_hours>48))
+counts <- c(less, more)
+n <- sum(counts)
+pie(counts, 
+    labels = paste0(c("Unburdened", "Burdened", "Severely Burdened")," (",round(counts/n*100,1),"%)"),
+    col = c("#bad5b0", "#2b344d", "#cc0b64"),
+    main = "Rent Burden on SEFS Salary Alone")
+
