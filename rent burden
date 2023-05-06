@@ -1,0 +1,29 @@
+rent_burd <- survey_full[,c(2,7)]
+
+## Remove specific rows with unusable responses
+rent_burd <- rent_burd[-c(22,37),]
+
+## Remove all non-numeric values
+rent_burd[,2] <- gsub("[^-.0-9]",'', rent_burd[,2])
+
+## Replace student status with salary
+rent_burd[,1] <- gsub("PhD Student", 2779, rent_burd[,1])
+rent_burd[,1] <- gsub("PhD Candidate", 2986, rent_burd[,1])
+rent_burd[,1] <- gsub("Master's Student", 2586, rent_burd[,1])
+
+## Calculate percent spent on rent
+perc_on_rent <- as.numeric(rent_burd[,2])/as.numeric(rent_burd[,1])
+
+## Count numbers in each category
+unburdened <- length(which(perc_on_rent<.3))
+sev_burden <- length(which(perc_on_rent>=.5))
+burdened <- length(perc_on_rent)-(unburdened+sev_burden)
+
+counts <- c(unburdened, burdened, sev_burden)
+n <- sum(counts)
+pie(counts, 
+    labels = paste0(c("Unburdened", "Burdened", "Severely Burdened")," (",round(counts/n*100,1),"%)"),
+    col = c("#bad5b0", "#2b344d", "#cc0b64"),
+    main = "Rent Burden on SEFS Salary Alone")
+legend("topleft", paste0("Responses: ",n )  )    
+    
